@@ -66,6 +66,7 @@ let terminate () =
     // Stop listening for incoming connections
     listener.Stop()
     printfn "Server is stopped"
+    Environment.Exit(0)
 
     
 
