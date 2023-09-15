@@ -45,4 +45,5 @@ List tasks that need to be completed or features that need to be added. You can 
 - [X] terminate command exception handling, server side
 - [ ] code cleanups
 - [ ] terminate command server side why exception?
+- [ ] Updating hte comments
 - [ ] Update the documentation and report with usage examples
