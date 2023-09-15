@@ -1,4 +1,4 @@
-# Concurrent Socket Communication in F# - Programming Assignment
+# Concurrent Socket Communication in F#
 
 This repository contains the source code for a concurrent client/server implementation for socket communication using F#.
 
