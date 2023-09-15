@@ -1,0 +1,3 @@
+server exception handling for more than 4 inputs
+client handling initial Hello from server
+
