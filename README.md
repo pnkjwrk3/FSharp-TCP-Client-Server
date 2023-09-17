@@ -34,8 +34,6 @@ To use this code for your own educational purposes or to complete the assignment
 
    ```bash
    mono Client.exe
-
-
 ## To-Do
 
 List tasks that need to be completed or features that need to be added. You can use checkboxes to mark the completion status of each task.
@@ -45,6 +43,6 @@ List tasks that need to be completed or features that need to be added. You can 
 - [X] terminate command exception handling, server side
 - [ ] code cleanups
 - [x] terminate command server side why exception?
-- [ ] Server keeping count of connected clients
-- [ ] Updating hte comments
+- [x] Server keeping count of connected clients
+- [ ] Updating the comments
 - [ ] Update the documentation and report with usage examples
