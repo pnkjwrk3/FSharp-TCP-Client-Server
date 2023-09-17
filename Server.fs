@@ -16,7 +16,11 @@ listener.Start()
 printfn "Server is listening on port %d" port
 
 // Create a list to store the active clients
-let clients = ResizeArray<TcpClient>()
+// let clients = ResizeArray<TcpClient>()
+type ClientInfo = { Client: TcpClient; Number: int }
+
+let clients = ResizeArray<ClientInfo>()
+let mutable nextClientNumber = 1
 
 // Define a function to check if a string is a valid integer
 let isInteger (s: string) =
@@ -27,31 +31,17 @@ let isInteger (s: string) =
 
 // Define a function to close all the clients and exit the server gracefully
 let terminate () =
-    // Loop through each client in the list
-    // for client in clients do
-    //     // Get the network stream from the client
-    //     for client in clients do
-    //     try
-    //         let stream = client.GetStream()
-    //         stream.Write(Encoding.UTF8.GetBytes("-5"), 0, 2)
-    //         stream.Close()
-    //         client.Close()
-    //         printfn "Sent from terminate client: -5"
-    //     with
-    //     | ex ->
-    //         printfn "Error while terminating client: %s" (ex.Message)
-
     let mutable disconnectedClients = []
-    for client in clients do
+    for clientInfo in clients do
         try
-            let stream = client.GetStream()
-            if client.Connected then
+            let stream = clientInfo.Client.GetStream()
+            if clientInfo.Client.Connected then
                 stream.Write(Encoding.UTF8.GetBytes("-5"), 0, 2)
                 stream.Close()
-                client.Close()
-                printfn "Sent from terminate client: -5"
+                clientInfo.Client.Close()
+                printfn "Sent from terminate client %d: -5" clientInfo.Number
             else
-                disconnectedClients <- client :: disconnectedClients
+                disconnectedClients <- clientInfo :: disconnectedClients
         with
         | ex ->
             printfn "Error while terminating client: %s" (ex.Message)
@@ -109,7 +99,10 @@ let checkCommand (command: string) (inputs: int array) =
         -1
 
 // Define a function to handle each client connection
-let handleClient (client: TcpClient) =
+let handleClient (clientInfo: ClientInfo) =
+    // get client
+    let client = clientInfo.Client
+
     // Get the network stream from the client
     let stream = client.GetStream()
 
@@ -118,7 +111,7 @@ let handleClient (client: TcpClient) =
 
     // Write a message to the client to greet them with "Hello!"
     stream.Write(Encoding.UTF8.GetBytes("Hello!"), 0, 6)
-    printfn "Sent to client: Hello!"
+    printfn "Sent to client %d: Hello!" clientInfo.Number
 
     // Loop until the client closes the connection
     let rec loop () =
@@ -129,7 +122,7 @@ let handleClient (client: TcpClient) =
         if bytes > 0 then
             // Decode the data as a string
             let message = Encoding.UTF8.GetString(buffer, 0, bytes)
-            printfn "Received from client: %s" message
+            printfn "Received from client %d: %s" clientInfo.Number message
 
             // Parse the message as a command and inputs
             let parts = message.Split(' ')
@@ -166,7 +159,7 @@ let handleClient (client: TcpClient) =
             else
                 // Write the response to the stream
                 stream.Write(Encoding.UTF8.GetBytes(response), 0, response.Length)
-                printfn "Sent to client: %s" response
+                printfn "Sent to client %d: %s" clientInfo.Number response
 
                 // Check if the result or error code is positive or -5 (exit)
                 if resultOrError > 0 then
@@ -176,10 +169,10 @@ let handleClient (client: TcpClient) =
                     // Close the stream and the client
                     stream.Close()
                     client.Close()
-                    printfn "Client disconnected, bye"
+                    printfn "Client %d disconnected, bye" clientInfo.Number
 
                     // Remove the client from the list of active clients 
-                    clients.Remove(client)
+                    clients.Remove(clientInfo)
                 elif resultOrError = -1 || resultOrError = -2 || resultOrError = -3 || resultOrError = -4 then
                     // Handle error codes -1 (incorrect operation command) and -4 (invalid input)
                     loop ()
@@ -194,7 +187,7 @@ let handleClient (client: TcpClient) =
             // Close the stream and the client
             // stream.Close()
             // client.Close()
-            printfn "Client disconnected"
+            printfn "Client %d disconnected" clientInfo.Number
             false
 
             // Remove the client from the list of active clients
@@ -204,22 +197,6 @@ let handleClient (client: TcpClient) =
     loop ()
 
 
-
-// // Loop until the server is stopped
-// while true do
-//     // Accept an incoming connection from a client
-//     let client = listener.AcceptTcpClient()
-//     printfn "Client connected"
-
-//     // Add the client to the list of active clients
-//     clients.Add(client)
-
-//     // Handle the client connection in a separate thread
-//     Async.Start (async { handleClient client })
-
-
-// ...
-
 // Loop until the server is stopped
 try
     while true do
@@ -228,14 +205,20 @@ try
         printfn "Client connected"
 
         // Add the client to the list of active clients
-        clients.Add(client)
+        // let clientNumber = clients.Count + 1
+        let clientNumber = nextClientNumber
+        nextClientNumber <- nextClientNumber + 1
+        
+        let clientInfo = { Client = client; Number = clientNumber }
+        clients.Add(clientInfo)
+        // clients.Add(client)
         // Print the IP address of the new client
         let clientEndPoint = client.Client.RemoteEndPoint :?> IPEndPoint
-        printfn "New client connected: %s" (clientEndPoint.Address.ToString())
+        printfn "New client %d connected: %s" clientNumber (clientEndPoint.Address.ToString())
         printfn "Number of clients connected: %d" clients.Count
 
         // Handle the client connection in a separate thread
-        Async.Start (async { handleClient client })
+        Async.Start (async { handleClient clientInfo })
 with
 | :? System.Net.Sockets.SocketException as sockEx when sockEx.SocketErrorCode = System.Net.Sockets.SocketError.Interrupted ->
     // Handle the interruption gracefully
