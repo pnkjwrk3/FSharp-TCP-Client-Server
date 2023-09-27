@@ -46,3 +46,4 @@ List tasks that need to be completed or features that need to be added. You can 
 - [x] Server keeping count of connected clients
 - [ ] Updating the comments
 - [ ] Update the documentation and report with usage examples
+- [x] check for error commands
