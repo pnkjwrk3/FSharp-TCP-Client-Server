@@ -204,11 +204,8 @@ let main argv =
     // Your server initialization and listener code here
     try
         while true do
-            // Accept an incoming connection from a client
             let client = listener.AcceptTcpClient()
             printfn "Client connected"
-
-            // Add the client to the list of active clients
             let clientNumber = nextClientNumber
             nextClientNumber <- nextClientNumber + 1
             let clientInfo = { Client = client; Number = clientNumber }
@@ -216,15 +213,11 @@ let main argv =
             let clientEndPoint = client.Client.RemoteEndPoint :?> IPEndPoint
             printfn "New client %d connected: %s" clientNumber (clientEndPoint.Address.ToString())
             printfn "Number of clients connected: %d" clients.Count
-
-            // Handle the client connection in a separate thread
             Async.Start (async { handleClient clientInfo })
     with
     | :? System.Net.Sockets.SocketException as sockEx when sockEx.SocketErrorCode = System.Net.Sockets.SocketError.Interrupted ->
-        // Handle the interruption gracefully
         printfn "Server interrupted. Cleaning up..."
         terminate ()
     | ex ->
-        // Handle other exceptions
         printfn "Server error: %s" ex.Message
     0 // Return an exit code (0 for success)
