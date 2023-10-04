@@ -1,7 +1,5 @@
 // Client program
 
-module Client
-
 open System
 open System.Net.Sockets
 open System.Text
@@ -57,13 +55,14 @@ let sendCommand (command: string) =
 
 // Function to continuously check for incoming messages from the server
 let rec checkForIncomingMessages () =
-    async {
-        let buffer = Array.zeroCreate 1024
+    let buffer = Array.zeroCreate 1024
 
+    // Continuously check for incoming messages
+    while true do
         // Check if there is data available for reading from the stream
         if stream.DataAvailable then
             // Read data from the stream and decode it as a string
-            let! bytes = stream.ReadAsync(buffer, 0, buffer.Length) |> Async.AwaitTask
+            let bytes = stream.Read(buffer, 0, buffer.Length)
             let response = Encoding.UTF8.GetString(buffer, 0, bytes)
             printfn "Received from server: %s" response
 
@@ -75,12 +74,11 @@ let rec checkForIncomingMessages () =
                 client.Close()
                 Environment.Exit(0)
 
-        // Continue checking for incoming messages
-        return! checkForIncomingMessages ()
-    }
+        // Sleep for a short duration to avoid busy-waiting
+        Thread.Sleep(100)
 
 // Start a separate thread to check for incoming messages from the server
-let incomingMessagesThread = Thread(fun () -> Async.RunSynchronously (checkForIncomingMessages ()))
+let incomingMessagesThread = Thread(fun () -> checkForIncomingMessages ())
 incomingMessagesThread.Start()
 
 // Function to interact with the server
@@ -121,7 +119,4 @@ let rec interactWithServer () =
     interactWithServer()
 
 // Start interacting with the server
-let main argv =
-    // Your client initialization and interaction code here
-    interactWithServer ()
-    0 // Return an exit code (0 for success)
+interactWithServer()
