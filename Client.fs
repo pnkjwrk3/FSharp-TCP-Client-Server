@@ -100,7 +100,10 @@ let rec interactWithServer () =
         printfn "Result: %s" response
 
     // Continue interacting with the server
-    interactWithServer()
+    // Check if the response was not an exit command
+    if response <> "-5" then
+        // Continue interacting with the server
+        interactWithServer()
 
 // Start interacting with the server
 let main argv =
