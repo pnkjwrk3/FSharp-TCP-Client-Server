@@ -35,25 +35,7 @@ let sendCommand (command: string) =
     let response = Encoding.UTF8.GetString(buffer, 0, bytes)
     printfn "Received from server: %s" response
     response
-
-// // Function to read and print the initial message from the server
-// let readInitialMessage () =
-//     let buffer = Array.zeroCreate 1024
-
-//     // Read data from the stream and decode it as a string
-//     let bytes = stream.Read(buffer, 0, buffer.Length)
-//     let response = Encoding.UTF8.GetString(buffer, 0, bytes)
-//     printfn "Received from server: %s" response
-
-// // Create a separate thread to read and print the initial message
-// let initialMessageThread = Thread(readInitialMessage)
-// initialMessageThread.Start()
-
-// // Read and print the initial message from the server
-// let buffer = Array.zeroCreate 1024
-// let bytes = stream.Read(buffer, 0, buffer.Length)
-// let initialMessage = Encoding.UTF8.GetString(buffer, 0, bytes)
-// printfn "Received from server: %s" initialMessage
+    
 
 // Function to continuously check for incoming messages from the server
 let rec checkForIncomingMessages () =

@@ -12,10 +12,12 @@ let main argv =
     | "1" ->
         // Start the server
         Server.main argv
+        |> ignore
         0 // Return 0 to indicate success
     | "2" ->
         // Start the client
         Client.main argv
+        |> ignore
         0 // Return 0 to indicate success
     | _ -> 
         printfn "Invalid choice"
