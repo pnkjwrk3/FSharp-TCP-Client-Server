@@ -6,10 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- <Compile Include="Program.fs" /> -->
     <Compile Include="Server.fs" />
-    <Compile Include="Client.fs" />
-    <Compile Include="Program.fs" />
   </ItemGroup>
 
 </Project>
